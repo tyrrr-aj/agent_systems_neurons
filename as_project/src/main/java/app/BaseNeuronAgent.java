@@ -35,7 +35,6 @@ public class BaseNeuronAgent implements Steppable {
     @Override
     public void step(SimState simState) {
         if (state == NeuronState.REGULAR) {
-            System.out.printf("(%s) Activated at %f\n", name, simState.schedule.getTime());
             for (BaseNeuronAgent neigh : neighbours) {
                 double weight = ((NeuralNetwork)simState).network.getEdge(this, neigh).getWeight();
                 neigh.startInputExcitation(this, weight, simState);
@@ -109,7 +108,6 @@ public class BaseNeuronAgent implements Steppable {
     private void rescheduleActivation(SimState simState) {
         nearestActivation.ifPresent(TentativeStep::stop);
         nearestActivation = Optional.of(new TentativeStep(this));
-        System.out.printf("(%s) Excitation = %f, Activation scheduled for %f\n", name, excitation, computeActivationTime());
         simState.schedule.scheduleOnceIn(computeActivationTime(), nearestActivation.get());
     }
 
