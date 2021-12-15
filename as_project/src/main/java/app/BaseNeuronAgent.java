@@ -40,12 +40,14 @@ public class BaseNeuronAgent implements Steppable {
                 neigh.startInputExcitation(this, weight, simState);
             }
             state = NeuronState.ACTIVATED;
+            excitation = Constants.THRESHOLD;
             simState.schedule.scheduleOnceIn(Constants.ACTIVATION_TIME, this);
         } else if (state == NeuronState.ACTIVATED) {
             for (BaseNeuronAgent neigh : neighbours) {
                 neigh.stopInputExcitation(this, simState);
             }
             state = NeuronState.REFRACTED;
+            excitation = -Constants.THRESHOLD;
             simState.schedule.scheduleOnceIn(Constants.REFRACTION_TIME, this);
         } else {
             excitation = 0.0;
