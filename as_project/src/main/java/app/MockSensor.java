@@ -7,6 +7,8 @@ public class MockSensor implements Steppable {
     private final BaseNeuronAgent output;
     private final double weight;
 
+    private int counter = 0;
+
     public MockSensor(BaseNeuronAgent output, double weight) {
         this.output = output;
         this.weight = weight;
@@ -15,6 +17,12 @@ public class MockSensor implements Steppable {
     @Override
     public void step(SimState simState) {
         NeuralNetwork neuralNetwork = (NeuralNetwork) simState;
-        output.startInputExcitation(this, weight, neuralNetwork);
+        if (counter == 0) {
+            output.startInputExcitation(this, weight, neuralNetwork);
+        }
+        else {
+            output.stopInputExcitation(this, simState);
+        }
+        counter += 1;
     }
 }

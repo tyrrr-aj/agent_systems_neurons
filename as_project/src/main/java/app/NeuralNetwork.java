@@ -24,14 +24,14 @@ public class NeuralNetwork extends SimState {
         BaseNeuronAgent first = null;
         BaseNeuronAgent previous = null;
         for (int i = 0; i < neuronsNumber; i++) {
-            BaseNeuronAgent neuron = new BaseNeuronAgent();
+            BaseNeuronAgent neuron = new BaseNeuronAgent("Neuron " + i);
             brain.setObjectLocation(neuron, neuronLocation(brain, i));
             network.addNode(neuron);
             if (previous != null) {
                 Edge edge = new Edge(previous, neuron, null);
                 edge.setWeight(weight);
                 network.addEdge(edge);
-
+                previous.addNeighbour(neuron);
             }
             else {
                 first = neuron;
@@ -41,6 +41,7 @@ public class NeuralNetwork extends SimState {
 
         MockSensor mockSensor = new MockSensor(first, 1.0);
         schedule.scheduleOnce(mockSensor);
+        schedule.scheduleOnceIn(8.0, mockSensor);
     }
 
     private Double2D neuronLocation(Continuous2D brain, int neuronIndex) {

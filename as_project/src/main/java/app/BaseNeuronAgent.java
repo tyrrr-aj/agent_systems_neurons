@@ -10,24 +10,32 @@ import java.util.*;
 
 public class BaseNeuronAgent implements Steppable {
     private List<BaseNeuronAgent> neighbours;
-    private HashMap<Object, Pair<double, double>> currentInputExcitations; //left weight, right startTime
+    private HashMap<Object, Pair<Double, Double>> currentInputExcitations; //left weight, right startTime
     private NeuronState state;
     private double excitation;
     private Optional<Double> lastUpdateTime;
     private Optional<TentativeStep> nearestActivation;
 
-    public BaseNeuronAgent() {
+    private final String name;
+
+    public BaseNeuronAgent(String name) {
         neighbours = new ArrayList<>();
         currentInputExcitations = new HashMap<>();
         state = NeuronState.REGULAR;
         excitation = 0.0;
         lastUpdateTime = Optional.empty();
         nearestActivation = Optional.empty();
+        this.name = name;
+    }
+
+    public void addNeighbour(BaseNeuronAgent neighbour) {
+        neighbours.add(neighbour);
     }
 
     @Override
     public void step(SimState simState) {
         if (state == NeuronState.REGULAR) {
+            System.out.printf("(%s) Activated at %f\n", name, simState.schedule.getTime());
             for (BaseNeuronAgent neigh : neighbours) {
                 double weight = ((NeuralNetwork)simState).network.getEdge(this, neigh).getWeight();
                 neigh.startInputExcitation(this, weight, simState);
@@ -43,40 +51,44 @@ public class BaseNeuronAgent implements Steppable {
         } else {
             excitation = 0.0;
             for (Object agent : currentInputExcitations.keySet()) {
-                Pair<double, double> pair = currentInputExcitations.get(agent);
-                currentInputExcitations.replace(agent, new ImmutablePair<double, double>(pair.getLeft(), now(simState)));
+                Pair<Double, Double> pair = currentInputExcitations.get(agent);
+                currentInputExcitations.replace(agent, new ImmutablePair<>(pair.getLeft(), now(simState)));
             }
             state = NeuronState.REGULAR;
             rescheduleActivation(simState);
         }
     }
 
-    private void startInputExcitation(Object neighbour, double weight, SimState simState) {
-        currentInputExcitations.put(neighbour, new ImmutablePair<double, double>(weight, now(simState)));
+    public void startInputExcitation(Object neighbour, double weight, SimState simState) {
         if (state == NeuronState.REGULAR) {
             excitation = newExcitation(simState);
+        }
+        currentInputExcitations.put(neighbour, new ImmutablePair<>(weight, now(simState)));
+        if (state == NeuronState.REGULAR) {
             rescheduleActivation(simState);
         }
     }
 
-    private void stopInputExcitation(BaseNeuronAgent neighbour, SimState simState) {
-        currentInputExcitations.remove(neighbour);
+    public void stopInputExcitation(Object neighbour, SimState simState) {
         if (state == NeuronState.REGULAR) {
             excitation = newExcitation(simState);
+        }
+        currentInputExcitations.remove(neighbour);
+        if (state == NeuronState.REGULAR) {
             rescheduleActivation(simState);
         }
     }
 
     private double newExcitation(SimState simState) {
         double newExcitation = currentInputExcitations.isEmpty()
-                ? excitation - countWhenNoCurrentInputExcitations(simState)
+                ? Math.max(0.0, excitation - countWhenNoCurrentInputExcitations(simState))
                 : excitation + countBasedOnCurrentInputExcitations(simState);
         lastUpdateTime = Optional.of(now(simState));
         return newExcitation;
     }
 
     private double countWhenNoCurrentInputExcitations(SimState simState) {
-        return Math.signum(excitation) * relaxation(excitation, now(simState) - lastUpdateTime.get());
+        return lastUpdateTime.isEmpty() ? 0.0 : Math.signum(excitation) * relaxation(excitation, now(simState) - lastUpdateTime.get());
     }
 
     private double relaxation(double excitation, double time) {
@@ -87,7 +99,7 @@ public class BaseNeuronAgent implements Steppable {
         double now = now(simState);
         double sum = 0;
         for (Object key : currentInputExcitations.keySet()) {
-            Pair<double, double> pair = currentInputExcitations.get(key);
+            Pair<Double, Double> pair = currentInputExcitations.get(key);
             sum += pair.getLeft() * (now - pair.getRight());
         }
 
@@ -95,18 +107,21 @@ public class BaseNeuronAgent implements Steppable {
     }
 
     private void rescheduleActivation(SimState simState) {
-        nearestActivation.ifPresent(activation -> activation.stop());
-        simState.schedule.scheduleOnceIn(computeActivationTime(simState), this);
+        nearestActivation.ifPresent(TentativeStep::stop);
+        nearestActivation = Optional.of(new TentativeStep(this));
+        System.out.printf("(%s) Excitation = %f, Activation scheduled for %f\n", name, excitation, computeActivationTime());
+        simState.schedule.scheduleOnceIn(computeActivationTime(), nearestActivation.get());
     }
 
-    private double computeActivationTime(SimState simState) {
-        return (Constants.THRESHOLD - excitation - countBasedOnCurrentInputExcitations(simState))/weightSum();
+    private double computeActivationTime() {
+        double remainingExcitation = Constants.THRESHOLD - excitation;
+        return remainingExcitation != 0.0 ? remainingExcitation / weightSum() : 0.0;
     }
 
     private double weightSum() {
         double sum = 0;
         for (Object key : currentInputExcitations.keySet()) {
-            Pair<double, double> pair = currentInputExcitations.get(key);
+            Pair<Double, Double> pair = currentInputExcitations.get(key);
             sum += pair.getLeft();
         }
 
