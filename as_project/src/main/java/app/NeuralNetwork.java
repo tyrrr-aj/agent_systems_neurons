@@ -13,6 +13,7 @@ public class NeuralNetwork extends SimState {
 
     private final int neuronsNumber = 4;
     private final double weight = 0.5;
+    private final double externalStimulationTime = 500.0;
     
     public NeuralNetwork(long seed) {
         super(seed);
@@ -41,7 +42,7 @@ public class NeuralNetwork extends SimState {
 
         MockSensor mockSensor = new MockSensor(first, 1.0);
         schedule.scheduleOnce(mockSensor);
-        schedule.scheduleOnceIn(8.0, mockSensor);
+        schedule.scheduleOnceIn(externalStimulationTime, mockSensor);
     }
 
     private Double2D neuronLocation(Continuous2D brain, int neuronIndex) {
