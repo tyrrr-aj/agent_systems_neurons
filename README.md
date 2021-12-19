@@ -12,7 +12,7 @@ In order to run and edit this project, one needs to:
     4. Select all .jars downloaded before
 4. Install Java 3D 
    1. Download [Java 3D](https://www.oracle.com/java/technologies/java-archive-downloads-java-client-downloads.html#java3d-1.5.1-oth-JPR) 
-   2. Add jars from ...\Java3D\1.5.1\lib\ext to project manually (sane as above)
+   2. Add jars from ...\Java3D\1.5.1\lib\ext to project manually (same as above)
 
 # Useful resources
 To know what we are doing, head to our [presentation](https://github.com/tyrrr-aj/agent_systems_neurons/blob/main/Presentation.pdf) or broader topic [description](https://home.agh.edu.pl/~horzyk/lectures/ci/CI-AssociativeNeuralGraphs.pdf?fbclid=IwAR25MTOs1tUY4LtWjs8MgI5ypSyJ8baUd3PNJ2wumDd-lWWZnRf4eTqxW60).
