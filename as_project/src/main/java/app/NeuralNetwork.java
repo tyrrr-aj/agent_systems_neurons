@@ -4,6 +4,7 @@ import sim.engine.SimState;
 import sim.field.continuous.Continuous2D;
 import sim.field.network.Edge;
 import sim.field.network.Network;
+import sim.util.Bag;
 import sim.util.Double2D;
 
 
@@ -55,5 +56,14 @@ public class NeuralNetwork extends SimState {
     public static void main(String[] args) {
         doLoop(NeuralNetwork.class, args);
         System.exit(0);
+    }
+
+    public double[] getExcitationDistribution(){
+        Bag neurons = network.getAllNodes();
+        double[] distribution = new double[neurons.numObjs];
+        for (int i=0; i<neurons.numObjs; i++){
+            distribution[i] = ((BaseNeuronAgent)(neurons.objs[i])).getExcitation();
+        }
+        return distribution;
     }
 }

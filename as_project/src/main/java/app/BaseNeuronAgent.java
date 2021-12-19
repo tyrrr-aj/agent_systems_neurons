@@ -6,6 +6,7 @@ import sim.engine.SimState;
 import sim.engine.Steppable;
 import sim.engine.TentativeStep;
 
+import java.text.DecimalFormat;
 import java.util.*;
 
 public class BaseNeuronAgent implements Steppable {
@@ -130,5 +131,19 @@ public class BaseNeuronAgent implements Steppable {
 
     private double now(SimState simState) {
         return simState.schedule.getTime();
+    }
+
+    public double getExcitation() {
+        return excitation;
+    }
+
+    @Override
+    public String toString() {
+        DecimalFormat df = new DecimalFormat("#.#####");
+        return "BaseNeuronAgent{\n" +
+                "state=" + state +
+                "\nexcitation=" + df.format(excitation) +
+                "\nname='" + name + '\'' +
+                '}';
     }
 }
