@@ -23,27 +23,33 @@ public class NeuralNetwork extends SimState {
     public void start() {
         super.start();
 
-        BaseNeuronAgent first = null;
-        BaseNeuronAgent previous = null;
-        for (int i = 0; i < neuronsNumber; i++) {
-            BaseNeuronAgent neuron = new BaseNeuronAgent("Neuron " + i);
-            brain.setObjectLocation(neuron, neuronLocation(brain, i));
-            network.addNode(neuron);
-            if (previous != null) {
-                Edge edge = new Edge(previous, neuron, null);
-                edge.setWeight(weight);
-                network.addEdge(edge);
-                previous.addNeighbour(neuron);
-            }
-            else {
-                first = neuron;
-            }
-            previous = neuron;
-        }
+        ReceptoryField leftReceptoryField = new ReceptoryField(5.0, true, true,5.0, 1, 99);
+        scheduleRandomStimulation(leftReceptoryField, 1000);
 
-        MockSensor mockSensor = new MockSensor(first, 1.0);
-        schedule.scheduleOnce(mockSensor);
-        schedule.scheduleOnceIn(externalStimulationTime, mockSensor);
+        ReceptoryField rightReceptoryField = new ReceptoryField(5.0, true, false,95.0, 1, 99);
+        scheduleRandomStimulation(rightReceptoryField, 1000);
+
+//        BaseNeuronAgent first = null;
+//        BaseNeuronAgent previous = null;
+//        for (int i = 0; i < neuronsNumber; i++) {
+//            BaseNeuronAgent neuron = new BaseNeuronAgent("Neuron " + i);
+//            brain.setObjectLocation(neuron, neuronLocation(brain, i));
+//            network.addNode(neuron);
+//            if (previous != null) {
+//                Edge edge = new Edge(previous, neuron, null);
+//                edge.setWeight(weight);
+//                network.addEdge(edge);
+//                previous.addNeighbour(neuron);
+//            }
+//            else {
+//                first = neuron;
+//            }
+//            previous = neuron;
+//        }
+//
+//        MockSensor mockSensor = new MockSensor(first, 1.0);
+//        schedule.scheduleOnce(mockSensor);
+//        schedule.scheduleOnceIn(externalStimulationTime, mockSensor);
     }
 
     private Double2D neuronLocation(Continuous2D brain, int neuronIndex) {
@@ -51,6 +57,14 @@ public class NeuralNetwork extends SimState {
         double x = (neuronIndex + 1) * unit;
         double y = brain.getHeight() / 2;
         return new Double2D(x, y);
+    }
+
+    private void scheduleRandomStimulation(ReceptoryField receptoryField, double totalTime) {
+        for (double time = 0.0; time < totalTime; time += random.nextDouble() * 15) {
+            receptoryField.scheduleStartStimulation(random.nextDouble(), this, time);
+            time += random.nextDouble() * 15;
+            receptoryField.scheduleStopStimulation(this, 8.0);
+        }
     }
 
     public static void main(String[] args) {
@@ -62,7 +76,15 @@ public class NeuralNetwork extends SimState {
         Bag neurons = network.getAllNodes();
         double[] distribution = new double[neurons.numObjs];
         for (int i=0; i<neurons.numObjs; i++){
-            distribution[i] = ((BaseNeuronAgent)(neurons.objs[i])).getExcitation();
+            if (neurons.objs[i] instanceof BaseNeuronAgent) {
+                distribution[i] = ((BaseNeuronAgent) (neurons.objs[i])).getExcitation();
+            }
+            else if (neurons.objs[i] instanceof Sensor) {
+                distribution[i] = ((Sensor) (neurons.objs[i])).isStimulated() ? 1.0 : 0.0;
+            }
+            else if (neurons.objs[i] instanceof ReceptoryField) {
+                distribution[i] = ((ReceptoryField) (neurons.objs[i])).isStimulated() ? 1.0 : 0.0;
+            }
         }
         return distribution;
     }

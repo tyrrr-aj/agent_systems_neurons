@@ -56,7 +56,7 @@ public class NeuralNetworkWithUI extends GUIState {
         NeuralNetwork neuralNetwork = (NeuralNetwork) state;
 
         neuralNetworkContinuousPortrayal.setField(neuralNetwork.brain);
-        neuralNetworkContinuousPortrayal.setPortrayalForAll(new MovablePortrayal2D(
+        neuralNetworkContinuousPortrayal.setPortrayalForClass(ReceptoryNeuron.class, new MovablePortrayal2D(
                 new CircledPortrayal2D(
                         new LabelledPortrayal2D(
                                 new OvalPortrayal2D() {
@@ -65,6 +65,34 @@ public class NeuralNetworkWithUI extends GUIState {
 
                                         double excitation = baseNeuronAgent.getExcitation();
                                         int color= (int) (excitation+1)*100;
+                                        paint = new Color(color, 0,255-color);
+                                        super.draw(object, graphics, info);
+                                    }
+                                }, 5.0, null, Color.black, true),
+                        0, 5.0, Color.green, true)));
+
+        neuralNetworkContinuousPortrayal.setPortrayalForClass(Sensor.class, new MovablePortrayal2D(
+                new CircledPortrayal2D(
+                        new LabelledPortrayal2D(
+                                new OvalPortrayal2D() {
+                                    public void draw(Object object, Graphics2D graphics, DrawInfo2D info) {
+                                        Sensor sensor = (Sensor) object;
+
+                                        int color= sensor.isStimulated() ? 255 : 0;
+                                        paint = new Color(color, 0,255-color);
+                                        super.draw(object, graphics, info);
+                                    }
+                                }, 5.0, null, Color.black, true),
+                        0, 5.0, Color.green, true)));
+
+        neuralNetworkContinuousPortrayal.setPortrayalForClass(ReceptoryField.class, new MovablePortrayal2D(
+                new CircledPortrayal2D(
+                        new LabelledPortrayal2D(
+                                new OvalPortrayal2D() {
+                                    public void draw(Object object, Graphics2D graphics, DrawInfo2D info) {
+                                        ReceptoryField receptoryField = (ReceptoryField) object;
+
+                                        int color= receptoryField.isStimulated() ? 255 : 0;
                                         paint = new Color(color, 0,255-color);
                                         super.draw(object, graphics, info);
                                     }
