@@ -116,7 +116,7 @@ public class NeuralNetworkWithUI extends GUIState {
                         0, 5.0, Color.green, true)));
 
         neuralNetworkNetworkPortrayal.setField(new SpatialNetwork2D(neuralNetwork.brain, neuralNetwork.network));
-        SimpleEdgePortrayal2D p = new SimpleEdgePortrayal2D(Color.black, Color.black, Color.black, new Font("SansSerif", 0, 3)) {
+        SimpleEdgePortrayal2D p = new SimpleEdgePortrayal2D(Color.black, Color.black, Color.black, new Font("SansSerif", 0, 2)) {
             @Override
             public String getLabel(Edge edge, EdgeDrawInfo2D info) {
                 return edge.getWeight() != 1.0 ? String.format("%.2f", edge.getWeight()) : "";
