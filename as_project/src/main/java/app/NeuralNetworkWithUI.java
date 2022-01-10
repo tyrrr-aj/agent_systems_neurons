@@ -72,6 +72,20 @@ public class NeuralNetworkWithUI extends GUIState {
                                     }
                                 }, 5.0, null, Color.black, true),
                         0, 5.0, Color.green, true)));
+        neuralNetworkContinuousPortrayal.setPortrayalForClass(ObjectNeuron.class, new MovablePortrayal2D(
+                new CircledPortrayal2D(
+                        new LabelledPortrayal2D(
+                                new OvalPortrayal2D() {
+                                    public void draw(Object object, Graphics2D graphics, DrawInfo2D info) {
+                                        BaseNeuronAgent baseNeuronAgent = (BaseNeuronAgent) object;
+
+                                        double excitation = baseNeuronAgent.getExcitation();
+                                        int color= (int) (excitation+1)*100;
+                                        paint = new Color(color, 0,255-color);
+                                        super.draw(object, graphics, info);
+                                    }
+                                }, 5.0, null, Color.black, true),
+                        0, 5.0, Color.green, true)));
 
         neuralNetworkContinuousPortrayal.setPortrayalForClass(Sensor.class, new MovablePortrayal2D(
                 new CircledPortrayal2D(
@@ -105,7 +119,7 @@ public class NeuralNetworkWithUI extends GUIState {
         SimpleEdgePortrayal2D p = new SimpleEdgePortrayal2D(Color.black, Color.black, Color.black, new Font("SansSerif", 0, 3)) {
             @Override
             public String getLabel(Edge edge, EdgeDrawInfo2D info) {
-                return String.format("%.2f", edge.getWeight());
+                return edge.getWeight() != 1.0 ? String.format("%.2f", edge.getWeight()) : "";
             }
         };
         p.setAdjustsThickness(true);

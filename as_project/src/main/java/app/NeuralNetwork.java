@@ -2,19 +2,22 @@ package app;
 
 import sim.engine.SimState;
 import sim.field.continuous.Continuous2D;
-import sim.field.network.Edge;
 import sim.field.network.Network;
 import sim.util.Bag;
-import sim.util.Double2D;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class NeuralNetwork extends SimState {
     public Continuous2D brain = new Continuous2D(1.0, 100, 100);
     public Network network = new Network(true);
 
-    private final int neuronsNumber = 4;
-    private final double weight = 0.5;
-    private final double externalStimulationTime = 500.0;
+    public ReceptorsStimulation currentStimulation = null;
+
+//    private final int neuronsNumber = 4;
+//    private final double weight = 0.5;
+//    private final double externalStimulationTime = 500.0;
     
     public NeuralNetwork(long seed) {
         super(seed);
@@ -23,11 +26,12 @@ public class NeuralNetwork extends SimState {
     public void start() {
         super.start();
 
-        ReceptoryField leftReceptoryField = new ReceptoryField(5.0, true, true,5.0, 1, 99);
-        scheduleRandomStimulation(leftReceptoryField, 1000);
+        List<ReceptoryField> receptoryFields = new ArrayList<>();
 
-        ReceptoryField rightReceptoryField = new ReceptoryField(5.0, true, false,95.0, 1, 99);
-        scheduleRandomStimulation(rightReceptoryField, 1000);
+        receptoryFields.add(new ReceptoryField(5.0, true, true,5.0, 1, 99));
+        receptoryFields.add(new ReceptoryField(5.0, true, false,95.0, 1, 99));
+
+        scheduleRandomStimulations(receptoryFields, 1000);
 
 //        BaseNeuronAgent first = null;
 //        BaseNeuronAgent previous = null;
@@ -52,18 +56,23 @@ public class NeuralNetwork extends SimState {
 //        schedule.scheduleOnceIn(externalStimulationTime, mockSensor);
     }
 
-    private Double2D neuronLocation(Continuous2D brain, int neuronIndex) {
-        double unit = brain.getWidth() / (neuronsNumber + 1);
-        double x = (neuronIndex + 1) * unit;
-        double y = brain.getHeight() / 2;
-        return new Double2D(x, y);
-    }
+//    private Double2D neuronLocation(Continuous2D brain, int neuronIndex) {
+//        double unit = brain.getWidth() / (neuronsNumber + 1);
+//        double x = (neuronIndex + 1) * unit;
+//        double y = brain.getHeight() / 2;
+//        return new Double2D(x, y);
+//    }
 
-    private void scheduleRandomStimulation(ReceptoryField receptoryField, double totalTime) {
-        for (double time = 0.0; time < totalTime; time += random.nextDouble() * 15) {
-            receptoryField.scheduleStartStimulation(random.nextDouble(), this, time);
-            time += random.nextDouble() * 15;
-            receptoryField.scheduleStopStimulation(this, 8.0);
+    private void scheduleRandomStimulations(List<ReceptoryField> receptoryFields, double totalTime) {
+        for (double startTime = 0.0; startTime < totalTime; startTime += random.nextDouble() * 15) {
+            double endTime = startTime + random.nextDouble() * 15;
+
+            ReceptorsStimulation receptorsStimulation = new ReceptorsStimulation(this, startTime, endTime);
+            for (ReceptoryField receptoryField : receptoryFields) {
+                receptorsStimulation.addReceptedValue(receptoryField, random.nextDouble() * receptoryField.getValueRange());
+            }
+
+            startTime = endTime;
         }
     }
 

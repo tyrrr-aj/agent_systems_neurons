@@ -9,7 +9,7 @@ import sim.engine.TentativeStep;
 import java.text.DecimalFormat;
 import java.util.*;
 
-public class BaseNeuronAgent implements Steppable {
+public abstract class BaseNeuronAgent implements Steppable {
     private List<BaseNeuronAgent> neighbours;
     private HashMap<Object, Pair<Double, Double>> currentInputExcitations; //left weight, right startTime
     private NeuronState state;
@@ -35,6 +35,8 @@ public class BaseNeuronAgent implements Steppable {
 
     @Override
     public void step(SimState simState) {
+        NeuralNetwork neuralNetwork = (NeuralNetwork) simState;
+
         if (state == NeuronState.REGULAR) {
             for (BaseNeuronAgent neigh : neighbours) {
                 double weight = ((NeuralNetwork)simState).network.getEdge(this, neigh).getWeight();
@@ -43,6 +45,7 @@ public class BaseNeuronAgent implements Steppable {
             state = NeuronState.ACTIVATED;
             excitation = Constants.THRESHOLD;
             simState.schedule.scheduleOnceIn(Constants.ACTIVATION_TIME, this);
+            recordActivation(neuralNetwork);
         } else if (state == NeuronState.ACTIVATED) {
             for (BaseNeuronAgent neigh : neighbours) {
                 neigh.stopInputExcitation(this, simState);
@@ -81,10 +84,14 @@ public class BaseNeuronAgent implements Steppable {
         }
     }
 
+    protected void recordActivation(NeuralNetwork neuralNetwork) {
+        neuralNetwork.currentStimulation.recordActivation(this);
+    }
+
     private double newExcitation(SimState simState) {
         double newExcitation = currentInputExcitations.isEmpty()
                 ? Math.max(0.0, excitation - countWhenNoCurrentInputExcitations(simState))
-                : excitation + countBasedOnCurrentInputExcitations(simState);
+                : Math.min(1.0, excitation + countBasedOnCurrentInputExcitations(simState)); // TODO: remove hack with Math.min
         lastUpdateTime = Optional.of(now(simState));
         return newExcitation;
     }

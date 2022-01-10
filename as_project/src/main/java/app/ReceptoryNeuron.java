@@ -3,13 +3,13 @@ package app;
 import sim.field.network.Edge;
 import sim.util.Double2D;
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class ReceptoryNeuron extends BaseNeuronAgent {
     private final ReceptoryField receptoryField;
+
+    private final Map<ObjectNeuron, Integer> objectNeuronsConnections = new HashMap<>();
 
     public ReceptoryNeuron(String name, ReceptoryField receptoryField, NeuralNetwork neuralNetwork, Double2D position) {
         super(name);
@@ -57,6 +57,35 @@ public class ReceptoryNeuron extends BaseNeuronAgent {
 
             addTwoWayEdge(neuralNetwork, this, closestNeigh);
         }
+    }
+
+    public ReceptoryField getReceptoryField() {
+        return receptoryField;
+    }
+
+    public double addNeighbouringONAndGetWeightToON(ObjectNeuron objectNeuron, NeuralNetwork neuralNetwork) {
+        if (objectNeuronsConnections.containsKey(objectNeuron)) {
+            int nConnections = objectNeuronsConnections.get(objectNeuron) + 1;
+            objectNeuronsConnections.replace(objectNeuron, nConnections);
+        }
+        else {
+            objectNeuronsConnections.put(objectNeuron, 1);
+            addNeighbour(objectNeuron);
+        }
+
+        for (ObjectNeuron neigh: objectNeuronsConnections.keySet()) {
+            Edge edge = neuralNetwork.network.getEdge(this, neigh);
+            if (edge != null) {
+                edge.setWeight((double) objectNeuronsConnections.get(neigh) / objectNeuronsConnections.size());
+            }
+        }
+
+        return (double) objectNeuronsConnections.get(objectNeuron) / objectNeuronsConnections.size();
+    }
+
+    @Override
+    protected void recordActivation(NeuralNetwork neuralNetwork) {
+        neuralNetwork.currentStimulation.recordActivation(this);
     }
 
     private double getWeight(NeuralNetwork neuralNetwork, ReceptoryNeuron first, ReceptoryNeuron second) {
