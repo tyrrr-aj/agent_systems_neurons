@@ -20,6 +20,7 @@ import sim.portrayal.simple.OvalPortrayal2D;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.geom.Line2D;
 
 public class NeuralNetworkWithUI extends GUIState {
 
@@ -121,9 +122,88 @@ public class NeuralNetworkWithUI extends GUIState {
             public String getLabel(Edge edge, EdgeDrawInfo2D info) {
                 return edge.getWeight() != 1.0 ? String.format("%.2f", edge.getWeight()) : "";
             }
+            @Override
+            public void draw(Object object, Graphics2D graphics, DrawInfo2D info) {
+                if (!(info instanceof EdgeDrawInfo2D)) {
+                    throw new RuntimeException("Expected this to be an EdgeDrawInfo2D: " + info);
+                }
+                else {
+                    Edge edge = (Edge) object;
+
+                    fromPaint = Color.black;
+                    toPaint = Color.black;
+                    if (BaseNeuronAgent.class.isAssignableFrom(edge.getTo().getClass())){
+                        BaseNeuronAgent baseNeuronAgent = (BaseNeuronAgent) edge.getTo();
+                        if (baseNeuronAgent.getExcitation() >= Constants.THRESHOLD)
+                            toPaint = new Color(255, 0, 0); //edge.getWeight()*255 and some scaling to make sure it stays within 0,255
+                    }
+                    if (BaseNeuronAgent.class.isAssignableFrom(edge.getFrom().getClass())){
+                        BaseNeuronAgent baseNeuronAgent = (BaseNeuronAgent) edge.getFrom();
+                        if (baseNeuronAgent.getExcitation() >= Constants.THRESHOLD)
+                            fromPaint = new Color(255, 0, 0);
+                    }
+
+
+                    EdgeDrawInfo2D e = (EdgeDrawInfo2D)info;
+                    Line2D.Double preciseLine = new Line2D.Double();
+                    double startXd = e.draw.x;
+                    double startYd = e.draw.y;
+                    double endXd = e.secondPoint.x;
+                    double endYd = e.secondPoint.y;
+                    double midXd = (startXd + endXd) / 2.0D;
+                    double midYd = (startYd + endYd) / 2.0D;
+                    int midX = (int)midXd;
+                    int midY = (int)midYd;
+                    double width;
+                    double scale;
+                    double weight;
+                    Stroke oldstroke;
+                    graphics.setPaint(this.fromPaint);
+                    width = this.getBaseWidth();
+                    scale = info.draw.width;
+                    if (scale >= 1.0D)
+                        scale = 1.0D;
+
+                    oldstroke = graphics.getStroke();
+                    weight = this.getPositiveWeight(object, e);
+                    graphics.setStroke(new BasicStroke((float)(width * weight * scale), this.shape == 1 ? 1 : (this.shape == 2 ? 2 : 0), 0));
+                    preciseLine.setLine(startXd, startYd, endXd, endYd);
+                    graphics.draw(preciseLine);
+                    graphics.setStroke(oldstroke);
+
+                    graphics.setPaint(this.fromPaint);
+                    width = this.getBaseWidth();
+                    scale = info.draw.width;
+                    if (scale >= 1.0D)
+                        scale = 1.0D;
+
+                    oldstroke = graphics.getStroke();
+                    weight = this.getPositiveWeight(object, e);
+                    graphics.setStroke(new BasicStroke((float)(width * weight * scale), this.shape == 1 ? 1 : (this.shape == 2 ? 2 : 0), 0));
+                    preciseLine.setLine(startXd, startYd, midXd, midYd);
+                    graphics.setPaint(fromPaint);
+                    graphics.draw(preciseLine);
+                    graphics.setPaint(toPaint);
+                    preciseLine.setLine(midXd, midYd, endXd, endYd);
+                    graphics.draw(preciseLine);
+                    graphics.setStroke(oldstroke);
+
+                    if (this.labelPaint != null) {
+                        Font labelFont = this.labelFont;
+                        String information = this.getLabel((Edge)object, e);
+                        if (information.length() > 0) {
+                            graphics.setPaint(this.labelPaint);
+                            graphics.setFont(labelFont);
+                            width = graphics.getFontMetrics().stringWidth(information);
+                            graphics.drawString(information, (float) (midX - width / 2), midY);
+                        }
+                    }
+
+                }
+            }
         };
         p.setAdjustsThickness(true);
-        p.setBaseWidth(1.0);
+        p.setBaseWidth(1.5);
         neuralNetworkNetworkPortrayal.setPortrayalForAll(p);
 
         display.reset();
