@@ -7,15 +7,15 @@ import sim.util.Double2D;
 
 public class Sensor implements Steppable {
     private final ReceptoryField receptoryField;
-    private ReceptoryNeuron associatedReceptoryNeuron;
+    private final ReceptoryNeuron associatedReceptoryNeuron;
 
     private boolean isStimulated = false;
 
     public Sensor(NeuralNetwork neuralNetwork, ReceptoryField receptoryField, Double2D position, Double2D receptoryNeuronsVec) {
         this.receptoryField = receptoryField;
         neuralNetwork.brain.setObjectLocation(this, position);
-        associatedReceptoryNeuron = new ReceptoryNeuron("receptory", receptoryField, neuralNetwork);
-        neuralNetwork.brain.setObjectLocation(associatedReceptoryNeuron, position.add(receptoryNeuronsVec.multiply(5.0)));
+        Double2D associatedRNPosition = position.add(receptoryNeuronsVec.multiply(5.0));
+        associatedReceptoryNeuron = new ReceptoryNeuron("receptory", receptoryField, neuralNetwork, associatedRNPosition);
         neuralNetwork.network.addNode(this);
         neuralNetwork.network.addNode(associatedReceptoryNeuron);
         Edge edge = new Edge(this, associatedReceptoryNeuron, null);

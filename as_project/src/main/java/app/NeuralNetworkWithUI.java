@@ -5,9 +5,11 @@ import sim.display.Controller;
 import sim.display.Display2D;
 import sim.display.GUIState;
 import sim.engine.SimState;
+import sim.field.network.Edge;
 import sim.portrayal.DrawInfo2D;
 import sim.portrayal.Inspector;
 import sim.portrayal.continuous.ContinuousPortrayal2D;
+import sim.portrayal.network.EdgeDrawInfo2D;
 import sim.portrayal.network.NetworkPortrayal2D;
 import sim.portrayal.network.SimpleEdgePortrayal2D;
 import sim.portrayal.network.SpatialNetwork2D;
@@ -100,7 +102,12 @@ public class NeuralNetworkWithUI extends GUIState {
                         0, 5.0, Color.green, true)));
 
         neuralNetworkNetworkPortrayal.setField(new SpatialNetwork2D(neuralNetwork.brain, neuralNetwork.network));
-        SimpleEdgePortrayal2D p = new SimpleEdgePortrayal2D(Color.black, Color.black, Color.black, new Font("SansSerif", 0, 3));
+        SimpleEdgePortrayal2D p = new SimpleEdgePortrayal2D(Color.black, Color.black, Color.black, new Font("SansSerif", 0, 3)) {
+            @Override
+            public String getLabel(Edge edge, EdgeDrawInfo2D info) {
+                return String.format("%.2f", edge.getWeight());
+            }
+        };
         p.setAdjustsThickness(true);
         p.setBaseWidth(1.0);
         neuralNetworkNetworkPortrayal.setPortrayalForAll(p);
