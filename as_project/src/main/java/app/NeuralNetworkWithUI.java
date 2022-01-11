@@ -132,15 +132,16 @@ public class NeuralNetworkWithUI extends GUIState {
 
                     fromPaint = Color.black;
                     toPaint = Color.black;
+                    int redColor = (int) Math.round((255 * edge.getWeight()) % 256);
                     if (BaseNeuronAgent.class.isAssignableFrom(edge.getTo().getClass())){
                         BaseNeuronAgent baseNeuronAgent = (BaseNeuronAgent) edge.getTo();
                         if (baseNeuronAgent.getExcitation() >= Constants.THRESHOLD)
-                            toPaint = new Color(255, 0, 0); //edge.getWeight()*255 and some scaling to make sure it stays within 0,255
+                            toPaint = new Color(redColor, 0, 0);
                     }
                     if (BaseNeuronAgent.class.isAssignableFrom(edge.getFrom().getClass())){
                         BaseNeuronAgent baseNeuronAgent = (BaseNeuronAgent) edge.getFrom();
                         if (baseNeuronAgent.getExcitation() >= Constants.THRESHOLD)
-                            fromPaint = new Color(255, 0, 0);
+                            fromPaint = new Color(redColor, 0, 0);
                     }
 
 
