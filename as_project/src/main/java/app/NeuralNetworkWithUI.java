@@ -136,7 +136,7 @@ public class NeuralNetworkWithUI extends GUIState {
                     if (BaseNeuronAgent.class.isAssignableFrom(edge.getTo().getClass())){
                         BaseNeuronAgent baseNeuronAgent = (BaseNeuronAgent) edge.getTo();
                         if (baseNeuronAgent.getExcitation() >= Constants.THRESHOLD)
-                            toPaint = new Color(redColor, 0, 0);
+                            fromPaint = new Color(redColor, 0, 0);
                     }
                     if (BaseNeuronAgent.class.isAssignableFrom(edge.getFrom().getClass())){
                         BaseNeuronAgent baseNeuronAgent = (BaseNeuronAgent) edge.getFrom();
@@ -184,7 +184,7 @@ public class NeuralNetworkWithUI extends GUIState {
                     preciseLine.setLine(startXd, startYd, midXd, midYd);
                     graphics.setPaint(fromPaint);
                     graphics.draw(preciseLine);
-                    graphics.setPaint(toPaint);
+//                    graphics.setPaint(toPaint);
                     preciseLine.setLine(midXd, midYd, endXd, endYd);
                     graphics.draw(preciseLine);
                     graphics.setStroke(oldstroke);
