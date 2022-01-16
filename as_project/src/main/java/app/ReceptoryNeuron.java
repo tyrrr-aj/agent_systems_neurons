@@ -8,12 +8,14 @@ import java.util.stream.Collectors;
 
 public class ReceptoryNeuron extends BaseNeuronAgent {
     private final ReceptoryField receptoryField;
+    private final double representedValue;
 
     private final Map<ObjectNeuron, Integer> objectNeuronsConnections = new HashMap<>();
 
-    public ReceptoryNeuron(String name, ReceptoryField receptoryField, NeuralNetwork neuralNetwork, Double2D position) {
+    public ReceptoryNeuron(String name, ReceptoryField receptoryField, NeuralNetwork neuralNetwork, Double2D position, double representedValue) {
         super(name);
         this.receptoryField = receptoryField;
+        this.representedValue = representedValue;
 
         neuralNetwork.brain.setObjectLocation(this, position);
         updateNeighbourhood(neuralNetwork);
@@ -63,6 +65,10 @@ public class ReceptoryNeuron extends BaseNeuronAgent {
         return receptoryField;
     }
 
+    public double getRepresentedValue() {
+        return representedValue;
+    }
+
     public double addNeighbouringONAndGetWeightToON(ObjectNeuron objectNeuron, NeuralNetwork neuralNetwork) {
         if (objectNeuronsConnections.containsKey(objectNeuron)) {
             int nConnections = objectNeuronsConnections.get(objectNeuron) + 1;
@@ -85,7 +91,7 @@ public class ReceptoryNeuron extends BaseNeuronAgent {
 
     @Override
     protected void recordActivation(NeuralNetwork neuralNetwork) {
-        neuralNetwork.currentStimulation.recordActivation(this);
+        neuralNetwork.currentStimulation.recordActivation(this, neuralNetwork);
     }
 
     private double getWeight(NeuralNetwork neuralNetwork, ReceptoryNeuron first, ReceptoryNeuron second) {

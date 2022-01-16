@@ -58,7 +58,7 @@ public class NeuralNetworkWithUI extends GUIState {
     public void setupPortrayals(){
         NeuralNetwork neuralNetwork = (NeuralNetwork) state;
         final double scale = 5.0;
-        final double size = 20;
+        final double size = 15;
 
         neuralNetworkContinuousPortrayal.setField(neuralNetwork.brain);
         neuralNetworkContinuousPortrayal.setPortrayalForClass(ReceptoryNeuron.class, new MovablePortrayal2D(

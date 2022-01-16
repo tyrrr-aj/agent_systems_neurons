@@ -14,11 +14,11 @@ public class Sensor implements Steppable {
     private boolean isStimulated = false;
     private double stimulation = 0.0;
 
-    public Sensor(NeuralNetwork neuralNetwork, ReceptoryField receptoryField, Double2D position, Double2D receptoryNeuronsVec) {
+    public Sensor(NeuralNetwork neuralNetwork, ReceptoryField receptoryField, Double2D position, Double2D receptoryNeuronsVec, double representedValue) {
         this.receptoryField = receptoryField;
         neuralNetwork.brain.setObjectLocation(this, position);
-        Double2D associatedRNPosition = position.add(receptoryNeuronsVec.multiply(constantReceptoryFieldDistance));
-        associatedReceptoryNeuron = new ReceptoryNeuron("receptory", receptoryField, neuralNetwork, associatedRNPosition);
+        Double2D associatedRNPosition = position.add(receptoryNeuronsVec.multiply(2.0));
+        associatedReceptoryNeuron = new ReceptoryNeuron("receptory", receptoryField, neuralNetwork, associatedRNPosition, representedValue);
         neuralNetwork.network.addNode(this);
         neuralNetwork.network.addNode(associatedReceptoryNeuron);
         Edge edge = new Edge(this, associatedReceptoryNeuron, null);

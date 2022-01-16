@@ -2,7 +2,6 @@ package app;
 
 import sim.engine.SimState;
 import sim.engine.Steppable;
-import sim.engine.TentativeStep;
 import sim.util.Double2D;
 
 import java.util.HashMap;
@@ -16,6 +15,10 @@ public class ReceptorsStimulation implements Steppable {
 
     private boolean isFirstRun = true;
 
+    private boolean isValidation = false;
+    private ReceptoryField outputField;
+    private double expectedValue;
+
     private final Map<ReceptoryField, ReceptoryNeuron> activatedRNs = new HashMap<>();
     private boolean hasONBeenActivated = false;
 
@@ -25,7 +28,7 @@ public class ReceptorsStimulation implements Steppable {
         this.timeEnd = timeEnd;
 
         neuralNetwork.schedule.scheduleOnce(timeStart, this);
-        neuralNetwork.schedule.scheduleOnce(timeStart + Constants.OBJECT_NODE_CHECK_TIME, this);
+        neuralNetwork.schedule.scheduleOnce(timeEnd + Constants.OBJECT_NODE_CHECK_TIME, this);
     }
 
     public void addReceptedValue(ReceptoryField receptoryField, double value) {
@@ -33,7 +36,7 @@ public class ReceptorsStimulation implements Steppable {
         receptoryField.scheduleStopStimulation(neuralNetwork, timeEnd);
     }
 
-    public boolean recordActivation(BaseNeuronAgent neuron) {
+    public boolean recordActivation(BaseNeuronAgent neuron, NeuralNetwork neuralNetwork) {
         if (neuron instanceof ObjectNeuron) {
             hasONBeenActivated = true;
             return true;
@@ -41,6 +44,18 @@ public class ReceptorsStimulation implements Steppable {
         else if (neuron instanceof ReceptoryNeuron receptoryNeuron) {
             if (!activatedRNs.containsKey(receptoryNeuron.getReceptoryField())) {
                 activatedRNs.put(receptoryNeuron.getReceptoryField(), receptoryNeuron);
+
+                if (isValidation && outputField == receptoryNeuron.getReceptoryField()) {
+                    if (Math.abs(expectedValue - receptoryNeuron.getRepresentedValue()) < 0.001) {
+                        System.out.printf("CORRECT: sample correctly classified as %f%n", receptoryNeuron.getRepresentedValue());
+                        neuralNetwork.recordClassification(true);
+                    }
+                    else {
+                        System.out.printf("WRONG: sample incorrectly classified as %f (should be %f)%n", receptoryNeuron.getRepresentedValue(), expectedValue);
+                        neuralNetwork.recordClassification(false);
+                    }
+                }
+
                 return true;
             }
         }
@@ -60,6 +75,12 @@ public class ReceptorsStimulation implements Steppable {
                 createON(neuralNetwork);
             }
         }
+    }
+
+    public void markAsValidation(ReceptoryField outputField, double expectedValue) {
+        isValidation = true;
+        this.outputField = outputField;
+        this.expectedValue = expectedValue;
     }
 
     private void createON(NeuralNetwork neuralNetwork) {

@@ -85,7 +85,7 @@ public abstract class BaseNeuronAgent implements Steppable {
     }
 
     protected void recordActivation(NeuralNetwork neuralNetwork) {
-        neuralNetwork.currentStimulation.recordActivation(this);
+        neuralNetwork.currentStimulation.recordActivation(this, neuralNetwork);
     }
 
     private double newExcitation(SimState simState) {

@@ -11,8 +11,8 @@ import java.util.*;
 
 public class ReceptoryField implements Steppable {
     private final double epsilon;
-    private Double minValue = 0.0;
-    private Double maxValue = 1.0;
+    private final Double minValue;
+    private final Double maxValue;
     private final boolean isVertical;
     private final boolean facedUp;
     private final double constantCoord;
@@ -22,13 +22,15 @@ public class ReceptoryField implements Steppable {
 
     private final PriorityQueue<Pair<Double, Double>> stimulations = new PriorityQueue<>((e1, e2) -> e1.getLeft() < e2.getLeft() ? -1 : 1); // first time, second stimulation
 
-    public ReceptoryField(double epsilon, boolean isVertical, boolean facedUp, double constantCoord, double variableCoordMin, double variableCoordMax) {
+    public ReceptoryField(double epsilon, boolean isVertical, boolean facedUp, double constantCoord, double variableCoordMin, double variableCoordMax, double minValue, double maxValue) {
         this.epsilon = epsilon;
         this.isVertical = isVertical;
         this.facedUp = facedUp;
         this.constantCoord = constantCoord;
         this.variableCoordMin = variableCoordMin;
         this.variableCoordMax = variableCoordMax;
+        this.minValue = minValue;
+        this.maxValue = maxValue;
     }
 
     @Override
@@ -57,8 +59,8 @@ public class ReceptoryField implements Steppable {
                 if (!facedUp) {
                     vec = vec.multiply(-1.0);
                 }
-                vec = vec.multiply(5.0);
-                new Sensor(neuralNetwork, this, getPosition(neuralNetwork).add(vec), vec);
+                vec = vec.multiply(3.0);
+                new Sensor(neuralNetwork, this, getPosition(neuralNetwork).add(vec), vec, stimulation);
             }
 
             Bag neighs = neuralNetwork.brain.getNeighborsWithinDistance(getPosition(neuralNetwork), 5 * epsilon);
@@ -112,7 +114,7 @@ public class ReceptoryField implements Steppable {
     }
 
     private void move(NeuralNetwork neuralNetwork, double stimulation) {
-        double ratio = stimulation / getValueRange();
+        double ratio = (stimulation - minValue) / getValueRange();
         double varCoord = variableCoordMin + (variableCoordMax - variableCoordMin) * ratio;
         Double2D newPosition = isVertical ? new Double2D(constantCoord, varCoord) : new Double2D(varCoord, constantCoord);
         neuralNetwork.brain.setObjectLocation(this, newPosition);
