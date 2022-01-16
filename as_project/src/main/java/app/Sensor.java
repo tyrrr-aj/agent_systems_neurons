@@ -9,12 +9,15 @@ public class Sensor implements Steppable {
     private final ReceptoryField receptoryField;
     private final ReceptoryNeuron associatedReceptoryNeuron;
 
+    private final double constantReceptoryFieldDistance = 3.0;
+
     private boolean isStimulated = false;
+    private double stimulation = 0.0;
 
     public Sensor(NeuralNetwork neuralNetwork, ReceptoryField receptoryField, Double2D position, Double2D receptoryNeuronsVec) {
         this.receptoryField = receptoryField;
         neuralNetwork.brain.setObjectLocation(this, position);
-        Double2D associatedRNPosition = position.add(receptoryNeuronsVec.multiply(5.0));
+        Double2D associatedRNPosition = position.add(receptoryNeuronsVec.multiply(constantReceptoryFieldDistance));
         associatedReceptoryNeuron = new ReceptoryNeuron("receptory", receptoryField, neuralNetwork, associatedRNPosition);
         neuralNetwork.network.addNode(this);
         neuralNetwork.network.addNode(associatedReceptoryNeuron);
@@ -27,8 +30,7 @@ public class Sensor implements Steppable {
         NeuralNetwork neuralNetwork = (NeuralNetwork) simState;
 
         if (isStimulated) {
-            double distance = receptoryField.getPosition(neuralNetwork).manhattanDistance(getPosition(neuralNetwork));
-            double stimulation;
+            double distance = receptoryField.getPosition(neuralNetwork).manhattanDistance(getPosition(neuralNetwork)) - constantReceptoryFieldDistance;
             if (receptoryField.getValueRange() > 0.0) {
                 stimulation = 1.0 - distance / receptoryField.getSpatialRange();
             } else {
@@ -38,6 +40,7 @@ public class Sensor implements Steppable {
         }
         else {
             associatedReceptoryNeuron.stopInputExcitation(this, simState);
+            stimulation = 0.0;
         }
     }
 
@@ -61,5 +64,9 @@ public class Sensor implements Steppable {
 
     public boolean isStimulated() {
         return isStimulated;
+    }
+
+    public double getStimulation() {
+        return stimulation;
     }
 }

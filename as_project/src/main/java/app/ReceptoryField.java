@@ -57,6 +57,7 @@ public class ReceptoryField implements Steppable {
                 if (!facedUp) {
                     vec = vec.multiply(-1.0);
                 }
+                vec = vec.multiply(5.0);
                 new Sensor(neuralNetwork, this, getPosition(neuralNetwork).add(vec), vec);
             }
 

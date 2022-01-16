@@ -57,6 +57,8 @@ public class NeuralNetworkWithUI extends GUIState {
 
     public void setupPortrayals(){
         NeuralNetwork neuralNetwork = (NeuralNetwork) state;
+        final double scale = 5.0;
+        final double size = 20;
 
         neuralNetworkContinuousPortrayal.setField(neuralNetwork.brain);
         neuralNetworkContinuousPortrayal.setPortrayalForClass(ReceptoryNeuron.class, new MovablePortrayal2D(
@@ -69,10 +71,12 @@ public class NeuralNetworkWithUI extends GUIState {
                                         double excitation = baseNeuronAgent.getExcitation();
                                         int color= (int) (excitation+1)*100;
                                         paint = new Color(color, 0,255-color);
+                                        info.draw.width = size;
+                                        info.draw.height = size;
                                         super.draw(object, graphics, info);
                                     }
-                                }, 5.0, null, Color.black, true),
-                        0, 5.0, Color.green, true)));
+                                }, scale, null, Color.black, true),
+                        0, scale, Color.green, true)));
         neuralNetworkContinuousPortrayal.setPortrayalForClass(ObjectNeuron.class, new MovablePortrayal2D(
                 new CircledPortrayal2D(
                         new LabelledPortrayal2D(
@@ -83,10 +87,12 @@ public class NeuralNetworkWithUI extends GUIState {
                                         double excitation = baseNeuronAgent.getExcitation();
                                         int color= (int) (excitation+1)*100;
                                         paint = new Color(color, 0,255-color);
+                                        info.draw.width = size;
+                                        info.draw.height = size;
                                         super.draw(object, graphics, info);
                                     }
-                                }, 5.0, null, Color.black, true),
-                        0, 5.0, Color.green, true)));
+                                }, scale, null, Color.black, true),
+                        0, scale, Color.green, true)));
 
         neuralNetworkContinuousPortrayal.setPortrayalForClass(Sensor.class, new MovablePortrayal2D(
                 new CircledPortrayal2D(
@@ -95,12 +101,14 @@ public class NeuralNetworkWithUI extends GUIState {
                                     public void draw(Object object, Graphics2D graphics, DrawInfo2D info) {
                                         Sensor sensor = (Sensor) object;
 
-                                        int color= sensor.isStimulated() ? 255 : 0;
+                                        int color= (int) (sensor.getStimulation() * 255);
                                         paint = new Color(color, 0,255-color);
+                                        info.draw.width = size;
+                                        info.draw.height = size;
                                         super.draw(object, graphics, info);
                                     }
-                                }, 5.0, null, Color.black, true),
-                        0, 5.0, Color.green, true)));
+                                }, scale, null, Color.black, true),
+                        0, scale, Color.green, true)));
 
         neuralNetworkContinuousPortrayal.setPortrayalForClass(ReceptoryField.class, new MovablePortrayal2D(
                 new CircledPortrayal2D(
@@ -111,10 +119,12 @@ public class NeuralNetworkWithUI extends GUIState {
 
                                         int color= receptoryField.isStimulated() ? 255 : 0;
                                         paint = new Color(color, 0,255-color);
+                                        info.draw.width = size;
+                                        info.draw.height = size;
                                         super.draw(object, graphics, info);
                                     }
-                                }, 5.0, null, Color.black, true),
-                        0, 5.0, Color.green, true)));
+                                }, scale, null, Color.black, true),
+                        0, scale, Color.green, true)));
 
         neuralNetworkNetworkPortrayal.setField(new SpatialNetwork2D(neuralNetwork.brain, neuralNetwork.network));
         SimpleEdgePortrayal2D p = new SimpleEdgePortrayal2D(Color.black, Color.black, Color.black, new Font("SansSerif", 0, 2)) {
